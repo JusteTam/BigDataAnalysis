@@ -1,0 +1,15 @@
+Status	/home/genetics/HW1/mapping_results/SRR11647687.sorted.bam	/home/genetics/HW1/mapping_results/SRR11647690.sorted.bam	/home/genetics/HW1/mapping_results/SRR11647693.sorted.bam	/home/genetics/HW1/mapping_results/SRR11647697.sorted.bam	/home/genetics/HW1/mapping_results/SRR11647700.sorted.bam	/home/genetics/HW1/mapping_results/SRR11647703.sorted.bam
+Assigned	29084483	23135386	24518369	22955980	22924594	26050317
+Unassigned_Unmapped	0	0	0	0	0	0
+Unassigned_Read_Type	0	0	0	0	0	0
+Unassigned_Singleton	0	0	0	0	0	0
+Unassigned_MappingQuality	0	0	0	0	0	0
+Unassigned_Chimera	0	0	0	0	0	0
+Unassigned_FragmentLength	0	0	0	0	0	0
+Unassigned_Duplicate	0	0	0	0	0	0
+Unassigned_MultiMapping	4519714	3197514	3533936	2265134	16468572	3915666
+Unassigned_Secondary	0	0	0	0	0	0
+Unassigned_NonSplit	0	0	0	0	0	0
+Unassigned_NoFeatures	6225205	3962073	2866860	2442271	3949430	4309093
+Unassigned_Overlapping_Length	0	0	0	0	0	0
+Unassigned_Ambiguity	4110400	3543311	3814027	3520309	3497072	4377934
