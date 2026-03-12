@@ -1,0 +1,158 @@
+#Data preprocessing
+#Getting dataset
+
+#Unzipinimas
+gunzip GRCh38.primary_assembly.genome.fa.gz 
+
+#Suskaiciuoja kiek chromosomu
+grep -c ">" GRCh38.primary_assembly.genome.fa 
+
+#Indeksavimas
+hisat2-build -p 8 GRCh38.primary_assembly.genome.fa indexed_reference
+
+
+#Raw data QC, mapping and QC
+
+#Indeksavimas
+hisat2-build -p 8 GRCh38.primary_assembly.genome.fa indexed_reference
+
+#Sukuriam direktorija fastQC rezam kur raw_data
+mkdir fastqc_results
+
+#Raw data QC
+fastqc *.fastq.gz -o ~/HW1/raw_data/fastqc_results
+multiqc .
+
+
+#Trimming
+#trim_galore -j 6 --paired (2 meginiai, 6 kartus kartojam su kiekviena pora)
+trim_galore -j 6 --paired --quality 20 --length 30 -o ~/HW1/trimming_results_new SRR11647687_1.fastq.gz SRR11647687_2.fastq.gz
+trim_galore -j 6 --paired --quality 20 --length 30 -o ~/HW1/trimming_results_new SRR11647690_1.fastq.gz SRR11647690_2.fastq.gz
+trim_galore -j 6 --paired --quality 20 --length 30 -o ~/HW1/trimming_results_new SRR11647693_1.fastq.gz SRR11647693_2.fastq.gz
+trim_galore -j 6 --paired --quality 20 --length 30 -o ~/HW1/trimming_results_new SRR11647697_1.fastq.gz SRR11647697_2.fastq.gz
+trim_galore -j 6 --paired --quality 20 --length 30 -o ~/HW1/trimming_results_new SRR11647700_1.fastq.gz SRR11647700_2.fastq.gz
+trim_galore -j 6 --paired --quality 20 --length 30 -o ~/HW1/trimming_results_new SRR11647703_1.fastq.gz SRR11647703_2.fastq.gz
+
+
+#Padarom fastqc su trimming fastqc_results
+fastqc *.fq.gz -o ~/HW1/trimming_results_new/fastqc_results_trimming
+multiqc .
+
+#Mapping
+hisat2 -p 6 -x ~/HW1/references/indexed_reference --no-unal --no-mixed --no-discordant -1 ~/HW1/trimming_results_new/SRR11647687_1_val_1.fq.gz -2 ~/HW1/trimming_results_new/SRR11647687_2_val_2.fq.gz -S SRR11647687.sam
+hisat2 -p 6 -x ~/HW1/references/indexed_reference --no-unal --no-mixed --no-discordant -1 ~/HW1/trimming_results_new/SRR11647690_1_val_1.fq.gz -2 ~/HW1/trimming_results_new/SRR11647690_2_val_2.fq.gz -S SRR11647690.sam
+hisat2 -p 6 -x ~/HW1/references/indexed_reference --no-unal --no-mixed --no-discordant -1 ~/HW1/trimming_results_new/SRR11647693_1_val_1.fq.gz -2 ~/HW1/trimming_results_new/SRR11647693_2_val_2.fq.gz -S SRR11647693.sam
+hisat2 -p 6 -x ~/HW1/references/indexed_reference --no-unal --no-mixed --no-discordant -1 ~/HW1/trimming_results_new/SRR11647697_1_val_1.fq.gz -2 ~/HW1/trimming_results_new/SRR11647697_2_val_2.fq.gz -S SRR11647697.sam
+hisat2 -p 6 -x ~/HW1/references/indexed_reference --no-unal --no-mixed --no-discordant -1 ~/HW1/trimming_results_new/SRR11647700_1_val_1.fq.gz -2 ~/HW1/trimming_results_new/SRR11647700_2_val_2.fq.gz -S SRR11647700.sam
+hisat2 -p 6 -x ~/HW1/references/indexed_reference --no-unal --no-mixed --no-discordant -1 ~/HW1/trimming_results_new/SRR11647703_1_val_1.fq.gz -2 ~/HW1/trimming_results_new/SRR11647703_2_val_2.fq.gz -S SRR11647703.sam
+
+
+#Report the number of reads used for mapping (jei pamirsai paziuret)
+samtools flagstat SRR11647687.sam
+
+#SAM > BAM
+samtools view -@ 6 -bS SRR11647687.sam > SRR11647687.bam
+samtools view -@ 6 -bS SRR11647690.sam > SRR11647690.bam
+samtools view -@ 6 -bS SRR11647693.sam > SRR11647693.bam
+samtools view -@ 6 -bS SRR11647697.sam > SRR11647697.bam
+samtools view -@ 6 -bS SRR11647700.sam > SRR11647700.bam
+samtools view -@ 6 -bS SRR11647703.sam > SRR11647703.bam
+
+#Duplikatai
+samtools collate -@ 6 -O -u SRR11647687.bam | samtools fixmate -@ 6 -m -u - - | samtools sort -@ 6 -u - | samtools markdup -@ 6 - SRR11647687_markdup.bam
+samtools collate -@ 6 -O -u SRR11647690.bam | samtools fixmate -@ 6 -m -u - - | samtools sort -@ 6 -u - | samtools markdup -@ 6 - SRR11647690_markdup.bam
+samtools collate -@ 6 -O -u SRR11647693.bam | samtools fixmate -@ 6 -m -u - - | samtools sort -@ 6 -u - | samtools markdup -@ 6 - SRR11647693_markdup.bam
+samtools collate -@ 6 -O -u SRR11647697.bam | samtools fixmate -@ 6 -m -u - - | samtools sort -@ 6 -u - | samtools markdup -@ 6 - SRR11647697_markdup.bam
+samtools collate -@ 6 -O -u SRR11647700.bam | samtools fixmate -@ 6 -m -u - - | samtools sort -@ 6 -u - | samtools markdup -@ 6 - SRR11647700_markdup.bam
+samtools collate -@ 6 -O -u SRR11647703.bam | samtools fixmate -@ 6 -m -u - - | samtools sort -@ 6 -u - | samtools markdup -@ 6 - SRR11647703_markdup.bam
+
+#Paziurim kiek duplikatu
+samtools view -c -f 1024 SRR11647687_markdup.bam 
+
+#SAM failu sortinimas
+samtools sort -@ 6 SRR11647687.bam -o SRR11647687.sorted.bam 
+samtools sort -@ 6 SRR11647690.bam -o SRR11647690.sorted.bam 
+samtools sort -@ 6 SRR11647693.bam -o SRR11647693.sorted.bam 
+samtools sort -@ 6 SRR11647697.bam -o SRR11647697.sorted.bam 
+samtools sort -@ 6 SRR11647700.bam -o SRR11647700.sorted.bam 
+samtools sort -@ 6 SRR11647703.bam -o SRR11647703.sorted.bam 
+
+#SAM failu indeksavimas (output yra .bai)
+samtools index -@ 6 SRR11647687.sorted.bam
+samtools index -@ 6 SRR11647690.sorted.bam
+samtools index -@ 6 SRR11647693.sorted.bam
+samtools index -@ 6 SRR11647697.sorted.bam
+samtools index -@ 6 SRR11647700.sorted.bam
+samtools index -@ 6 SRR11647703.sorted.bam
+
+#Patikrinam coverage
+samtools coverage SRR11647687.bam 
+samtools coverage SRR11647687.sorted.bam
+
+#Parsisiunciam bed failus
+wget https://sourceforge.net/projects/rseqc/files/BED/Human_Homo_sapiens/hg38_GENCODE_V45_Basic.bed.gz/download
+wget https://sourceforge.net/projects/rseqc/files/BED/Human_Homo_sapiens/hg38.HouseKeepingGenes.bed.gz/download
+
+#Juos unzippinam
+gunzip -c ~/HW1/bed_files/basic_bed > ~/HW1/bed_files/basic_bed.bed
+
+#Coverage grafikai
+geneBody_coverage.py -r ~/HW1/bed_files/basic_bed.bed -i SRR11647687.sorted.bam,SRR11647690.sorted.bam,SRR11647693.sorted.bam,SRR11647697.sorted.bam,SRR11647700.sorted.bam,SRR11647703.sorted.bam -o ~/HW1/mapped_data_quality/coverage_output
+
+#Koreliacijos matrica
+multiBamSummary bins --bamfiles *.sorted.bam -o ~/HW1/mapped_data_quality/corr_matrix.npz -p 6
+
+#Koreliacijos grafikas
+plotCorrelation -in corr_matrix.npz -c spearman -p heatmap -o corr_plot.png 
+
+#PCA grafikas
+plotPCA -in corr_matrix.npz -o pca.png
+
+#Inner distance grafikai
+inner_distance.py -i ~/HW1/mapping_results/SRR11647687.sorted.bam -r ~/HW1/bed_files/basic_bed.bed -o ~/HW1/mapped_data_quality/SRR11647687_inner_distance
+inner_distance.py -i ~/HW1/mapping_results/SRR11647690.sorted.bam -r ~/HW1/bed_files/basic_bed.bed -o ~/HW1/mapped_data_quality/SRR11647690_inner_distance
+inner_distance.py -i ~/HW1/mapping_results/SRR11647693.sorted.bam -r ~/HW1/bed_files/basic_bed.bed -o ~/HW1/mapped_data_quality/SRR11647693_inner_distance
+inner_distance.py -i ~/HW1/mapping_results/SRR11647697.sorted.bam -r ~/HW1/bed_files/basic_bed.bed -o ~/HW1/mapped_data_quality/SRR11647697_inner_distance
+inner_distance.py -i ~/HW1/mapping_results/SRR11647700.sorted.bam -r ~/HW1/bed_files/basic_bed.bed -o ~/HW1/mapped_data_quality/SRR11647700_inner_distance
+inner_distance.py -i ~/HW1/mapping_results/SRR11647703.sorted.bam -r ~/HW1/bed_files/basic_bed.bed -o ~/HW1/mapped_data_quality/SRR11647703_inner_distance
+
+#Clipping profile
+clipping_profile.py -i ~/HW1/mapping_results/SRR11647687.sorted.bam -s "PE" -o ~/HW1/mapped_data_quality/SRR11647687
+clipping_profile.py -i ~/HW1/mapping_results/SRR11647690.sorted.bam -s "PE" -o ~/HW1/mapped_data_quality/SRR11647690
+clipping_profile.py -i ~/HW1/mapping_results/SRR11647693.sorted.bam -s "PE" -o ~/HW1/mapped_data_quality/SRR11647693
+clipping_profile.py -i ~/HW1/mapping_results/SRR11647697.sorted.bam -s "PE" -o ~/HW1/mapped_data_quality/SRR11647697
+clipping_profile.py -i ~/HW1/mapping_results/SRR11647700.sorted.bam -s "PE" -o ~/HW1/mapped_data_quality/SRR11647700
+clipping_profile.py -i ~/HW1/mapping_results/SRR11647703.sorted.bam -s "PE" -o ~/HW1/mapped_data_quality/SRR11647703
+
+#Annotated junctions
+junction_annotation.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647687.sorted.bam -o ~/HW1/mapped_data_quality/SRR11647687
+junction_annotation.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647690.sorted.bam -o ~/HW1/mapped_data_quality/SRR11647690
+junction_annotation.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647693.sorted.bam -o ~/HW1/mapped_data_quality/SRR11647693
+junction_annotation.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647697.sorted.bam -o ~/HW1/mapped_data_quality/SRR11647697
+junction_annotation.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647700.sorted.bam -o ~/HW1/mapped_data_quality/SRR11647700
+junction_annotation.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647703.sorted.bam -o ~/HW1/mapped_data_quality/SRR11647703
+
+#Library type (stranded or unstranded) - gaunasi visur unstranded
+infer_experiment.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647687.sorted.bam
+infer_experiment.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647690.sorted.bam 
+infer_experiment.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647693.sorted.bam
+infer_experiment.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647697.sorted.bam
+infer_experiment.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647700.sorted.bam
+infer_experiment.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SRR11647703.sorted.bam
+
+#featurecounts
+featureCounts -a ~/HW1/references/gencode.v49.primary_assembly.annotation.gtf.gz -o ~/HW1/feature_counts/count_table.txt -t exon -g gene_id -p -T 6 -s 0 ~/HW1/mapping_results/*.sorted.bam
+featureCounts -a ~/HW1/references/gencode.v49.primary_assembly.annotation.gtf.gz -o ~/HW1/feature_counts/count_table_2.txt -t exon -g gene_id -p -T 6 -s 0 ~/HW1/mapping_results/*.sorted.bam
+
+#Is anotacijos failo issitraukiam gene_id, gene_name ir gene_type
+zcat ~/HW1/references/gencode.v49.primary_assembly.annotation.gtf.gz \
+| awk 'BEGIN{FS="\t"; OFS="\t"} $3=="gene" {
+    gene_id=""; gene_type="";
+    if (match($9, /gene_id "[^"]+"/)) {
+        gene_id=substr($9, RSTART+9, RLENGTH-10)
+    }
+    if (match($9, /gene_type "[^"]+"/)) {
+        gene_type=substr($9, RSTART+11, RLENGTH-12)
+    }
+    print gene_id, gene_type
+}' > gene_id_type.tsv
