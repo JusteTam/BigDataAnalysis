@@ -1,0 +1,7 @@
+*.bam
+*.sam
+bed_files/
+mapping_results/
+raw_data/
+references/
+trimming_results_new/
