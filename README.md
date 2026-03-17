@@ -40,22 +40,22 @@ Gene annotation:
 
 ## Repository Structure
 
-```
-feature_counts/
-    Gene expression count tables generated with featureCounts
 
-mapped_data_quality/
-    Mapping QC results (coverage, correlation, PCA, clipping, junctions)
+**feature_counts/**
+- Gene expression count tables generated with featureCounts
 
-HW1 komandu sarasas.txt
-    All terminal commands used for preprocessing, mapping and QC
+**mapped_data_quality/**
+- Mapping QC results (gene body coverage, inner distance, clipping profile, annotated junctions, sample correlation, PCA)
 
-Biological_data_analysis.html
-    R analysis results including plots and downstream analysis
+**HW1 komandu sarasas.txt**
+- All terminal commands used for preprocessing, mapping and QC
 
-README.md
-    Project description and instructions
-```
+**Biological_data_analysis.html**
+- R analysis results including plots and downstream analysis
+
+**README.md**
+- Project description and instructions
+
 
 
 ## Software and Tools Used
@@ -103,11 +103,11 @@ Convert SAM → BAM, sort, index, and mark duplicates using **SAMtools**.
 ### 5. Mapping Quality Assessment
 Evaluate mapping quality using **RSeQC** tools:
 - gene body coverage
-- correlation analysis
-- PCA
 - inner distance
 - clipping profile
-- splice junction annotation
+- annotated junctions
+- sample correlation
+- PCA
 
 ### 6. Gene Quantification
 Count reads overlapping genes using **featureCounts**.
@@ -121,9 +121,4 @@ Functional interpretation of genes was performed using:
 - Gene Set Enrichment Analysis (GSEA)
 - Pathway clustering and visualization using **aPEAR**
 
-### Files in this repository
 
-- **HW1 komandu sarasas.txt** – contains all terminal commands used in the preprocessing pipeline  
-- **Biological_data_analysis.html** – contains the R analysis, plots, and downstream results  
-- **feature_counts/** – read count tables  
-- **mapped_data_quality/** – mapping quality results
