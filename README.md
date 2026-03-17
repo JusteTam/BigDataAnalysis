@@ -50,7 +50,7 @@ Gene annotation:
 **HW1 komandu sarasas.txt**
 - All terminal commands used for preprocessing, mapping and QC
 
-**Biological_data_analysis.html**
+**DE_analysis.html**
 - R analysis results including plots and downstream analysis
 
 **README.md**
