@@ -142,7 +142,6 @@ infer_experiment.py -r ~/HW1/bed_files/basic_bed.bed -i ~/HW1/mapping_results/SR
 
 #featurecounts
 featureCounts -a ~/HW1/references/gencode.v49.primary_assembly.annotation.gtf.gz -o ~/HW1/feature_counts/count_table.txt -t exon -g gene_id -p -T 6 -s 0 ~/HW1/mapping_results/*.sorted.bam
-featureCounts -a ~/HW1/references/gencode.v49.primary_assembly.annotation.gtf.gz -o ~/HW1/feature_counts/count_table_2.txt -t exon -g gene_id -p -T 6 -s 0 ~/HW1/mapping_results/*.sorted.bam
 
 #Is anotacijos failo issitraukiam gene_id, gene_name ir gene_type
 zcat ~/HW1/references/gencode.v49.primary_assembly.annotation.gtf.gz \
