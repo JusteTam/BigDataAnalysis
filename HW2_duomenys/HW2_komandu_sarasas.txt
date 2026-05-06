@@ -1,0 +1,68 @@
+#Downloading datasets
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/052/SRR11647652/SRR11647652_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/052/SRR11647652/SRR11647652_2.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/053/SRR11647653/SRR11647653_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/053/SRR11647653/SRR11647653_2.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/062/SRR11647662/SRR11647662_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/062/SRR11647662/SRR11647662_2.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/063/SRR11647663/SRR11647663_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/063/SRR11647663/SRR11647663_2.fastq.gz
+
+
+#Indexing 
+conda activate bwameth_env
+bwameth.py index ~/HW1/references/GRCh38.primary_assembly.genome.fa
+
+
+hisat2-build -p 6 ~/HW1/references/GRCh38.primary_assembly.genome.fa indexed_reference_2
+
+#QC
+fastqc *.fastq.gz -o ~/HW2/raw_data/fastqc_results
+fastqc SRR11647663_1.fastq.gz -o ~/HW2/raw_data/fastqc_results
+
+#Trimming
+trim_galore -j 6 --paired --quality 20 --gzip --fastqc SRR11647652_1.fastq.gz SRR11647652_2.fastq.gz -o ~/HW2/trimming_results
+trim_galore -j 6 --paired --quality 20 --gzip --fastqc SRR11647653_1.fastq.gz SRR11647653_2.fastq.gz -o ~/HW2/trimming_results
+trim_galore -j 6 --paired --quality 20 --gzip --fastqc SRR11647662_1.fastq.gz SRR11647662_2.fastq.gz -o ~/HW2/trimming_results
+trim_galore -j 6 --paired --quality 20 --gzip --fastqc SRR11647663_1.fastq.gz SRR11647663_2.fastq.gz -o ~/HW2/trimming_results
+
+
+#Mapping komanda keiciam i bsmap - teams bus komanda
+conda create -n bsmap_env bioconda::bsmap
+conda activate bsmap_env
+bsmap -a ~/HW2/trimming_results/SRR11647652_1_val_1.fq.gz -b ~/HW2/trimming_results/SRR11647652_2_val_2.fq.gz -d ~/HW1/references/GRCh38.primary_assembly.genome.fa -o SRR11647652.bam -p 6
+bsmap -a ~/HW2/trimming_results/SRR11647653_1_val_1.fq.gz -b ~/HW2/trimming_results/SRR11647653_2_val_2.fq.gz -d ~/HW1/references/GRCh38.primary_assembly.genome.fa -o SRR11647653.bam -p 6
+bsmap -a ~/HW2/trimming_results/SRR11647662_1_val_1.fq.gz -b ~/HW2/trimming_results/SRR11647662_2_val_2.fq.gz -d ~/HW1/references/GRCh38.primary_assembly.genome.fa -o SRR11647662.bam -p 6
+bsmap -a ~/HW2/trimming_results/SRR11647663_1_val_1.fq.gz -b ~/HW2/trimming_results/SRR11647663_2_val_2.fq.gz -d ~/HW1/references/GRCh38.primary_assembly.genome.fa -o SRR11647663.bam -p 6
+
+#BAM failu sortinimas
+samtools sort -@ 6 SRR11647652.bam -o SRR11647652.sorted.bam 
+samtools sort -@ 6 SRR11647653.bam -o SRR11647653.sorted.bam 
+samtools sort -@ 6 SRR11647662.bam -o SRR11647662.sorted.bam 
+samtools sort -@ 6 SRR11647663.bam -o SRR11647663.sorted.bam 
+
+#Truksta kazkokios eilutes, reikia sutvarkyti
+picard AddOrReplaceReadGroups I=SRR11647652.sorted.bam O=SRR11647652.rg.bam RGID=SRR11647652 RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=SRR11647652
+picard AddOrReplaceReadGroups I=SRR11647653.sorted.bam O=SRR11647653.rg.bam RGID=SRR11647653 RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=SRR11647653
+picard AddOrReplaceReadGroups I=SRR11647662.sorted.bam O=SRR11647662.rg.bam RGID=SRR11647662 RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=SRR11647662
+picard AddOrReplaceReadGroups I=SRR11647663.sorted.bam O=SRR11647663.rg.bam RGID=SRR11647663 RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=SRR11647663
+
+
+#Duplikatai
+picard MarkDuplicates I=SRR11647652.rg.bam O=SRR11647652.dedp.bam M=SRR11647652.metrics.txt REMOVE_DUPLICATES=false
+picard MarkDuplicates I=SRR11647653.rg.bam O=SRR11647653.dedp.bam M=SRR11647653.metrics.txt REMOVE_DUPLICATES=false
+picard MarkDuplicates I=SRR11647662.rg.bam O=SRR11647662.dedp.bam M=SRR11647662.metrics.txt REMOVE_DUPLICATES=false
+picard MarkDuplicates I=SRR11647663.rg.bam O=SRR11647663.dedp.bam M=SRR11647663.metrics.txt REMOVE_DUPLICATES=false
+
+#Mbias plot
+conda activate methyldackel_env
+MethylDackel mbias ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647652.dedp.bam SRR11647652_mbias_plot
+MethylDackel mbias ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647653.dedp.bam SRR11647653_mbias_plot
+MethylDackel mbias ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647662.dedp.bam SRR11647662_mbias_plot
+MethylDackel mbias ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647663.dedp.bam SRR11647663_mbias_plot
+
+#Methylation calling
+MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647652.dedp.bam -r chr20 -o SRR11647652_methylation_chr20
+MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647653.dedp.bam -r chr20 -o SRR11647653_methylation_chr20
+MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647662.dedp.bam -r chr20 -o SRR11647662_methylation_chr20
+MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647663.dedp.bam -r chr20 -o SRR11647663_methylation_chr20
