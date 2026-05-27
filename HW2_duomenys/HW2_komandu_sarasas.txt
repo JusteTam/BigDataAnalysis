@@ -66,3 +66,9 @@ MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.pr
 MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647653.dedp.bam -r chr20 -o SRR11647653_methylation_chr20
 MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647662.dedp.bam -r chr20 -o SRR11647662_methylation_chr20
 MethylDackel extract --OT 2,0,2,111 --OB 2,124,15,124 ~/HW1/references/GRCh38.primary_assembly.genome.fa ~/HW2/mapping_results/SRR11647663.dedp.bam -r chr20 -o SRR11647663_methylation_chr20
+
+#Calculating total number of reads per sample
+samtools view -c -F 260 SRR11647652.dedp.bam chr20
+samtools view -c -F 260 SRR11647653.dedp.bam chr20
+samtools view -c -F 260 SRR11647662.dedp.bam chr20
+samtools view -c -F 260 SRR11647663.dedp.bam chr20
